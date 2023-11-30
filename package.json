@@ -1,0 +1,29 @@
+{
+  "name": "advent-of-code-template",
+  "version": "1.0.0",
+  "description": "Advent of Code is an Advent calendar of small programming puzzles for a variety of skill sets and skill levels.",
+  "repository": "https://github.com/bbush915/advent-of-code-template.git",
+  "author": "Bryan Bush <bushb@umich.edu>",
+  "private": "true",
+  "scripts": {
+    "generate:day": "ts-node ./scripts/generate-day.ts",
+    "download:input": "ts-node ./scripts/download-input.ts",
+    "run:day": "ts-node ./scripts/run-day.ts",
+    "run:all": "ts-node ./scripts/run-all.ts",
+    "submit": "ts-node ./scripts/submit-answer.ts",
+    "test": "jest"
+  },
+  "devDependencies": {
+    "@types/command-line-args": "5.2.3",
+    "@types/jest": "29.5.10",
+    "@types/node": "20.10.0",
+    "axios": "1.6.2",
+    "command-line-args": "5.2.1",
+    "dotenv": "16.3.1",
+    "jest": "29.7.0",
+    "ts-jest": "29.1.1",
+    "ts-node": "10.9.1",
+    "typescript": "5.3.2"
+  },
+  "dependencies": {}
+}

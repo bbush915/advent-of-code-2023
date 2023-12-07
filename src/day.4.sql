@@ -91,16 +91,16 @@ WITH
             S.[Row] + 1 AS [Row],
             (
                 1 
-                + iif(coalesce(M.[1], 0) = 1, 1, 0) * S.[ScratchcardCount] 
-                + iif(coalesce(M.[2], 0) = 1, 1, 0) * S.[1]
-                + iif(coalesce(M.[3], 0) = 1, 1, 0) * S.[2]
-                + iif(coalesce(M.[4], 0) = 1, 1, 0) * S.[3]
-                + iif(coalesce(M.[5], 0) = 1, 1, 0) * S.[4]
-                + iif(coalesce(M.[6], 0) = 1, 1, 0) * S.[5]
-                + iif(coalesce(M.[7], 0) = 1, 1, 0) * S.[6]
-                + iif(coalesce(M.[8], 0) = 1, 1, 0) * S.[7]
-                + iif(coalesce(M.[9], 0) = 1, 1, 0) * S.[8]
-                + iif(coalesce(M.[10], 0) = 1, 1, 0) * S.[9]
+                + iif(M.[1] = 1, 1, 0) * S.[ScratchcardCount] 
+                + iif(M.[2] = 1, 1, 0) * S.[1]
+                + iif(M.[3] = 1, 1, 0) * S.[2]
+                + iif(M.[4] = 1, 1, 0) * S.[3]
+                + iif(M.[5] = 1, 1, 0) * S.[4]
+                + iif(M.[6] = 1, 1, 0) * S.[5]
+                + iif(M.[7] = 1, 1, 0) * S.[6]
+                + iif(M.[8] = 1, 1, 0) * S.[7]
+                + iif(M.[9] = 1, 1, 0) * S.[8]
+                + iif(M.[10] = 1, 1, 0) * S.[9]
             ),
             S.[ScratchcardCount],
             S.[1],

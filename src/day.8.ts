@@ -1,6 +1,5 @@
 import fs from "fs";
 
-import "./utils/array";
 import { gcd } from "./utils/number";
 
 type Node = {

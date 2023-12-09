@@ -59,7 +59,7 @@ export function part2() {
         depth++;
       }
 
-      subhistories[depth].push(0);
+      subhistories[depth].unshift(0);
 
       for (let i = subhistories.length - 2; i >= 0; i--) {
         subhistories[i].unshift(subhistories[i][0] - subhistories[i + 1][0]);

@@ -57,63 +57,118 @@ export function part2() {
     }
   }
 
-  // NOTE - Calculate the winding number for all non-pipe tiles. If the
-  // winding number is non-zero, then it is enclosed by the pipe.
+  // NOTE - Calculate connected components to reduce the required
+  // amount of winding number calculations.
 
-  let count = 0;
+  const connectedComponents: Set<string>[] = [];
 
   for (let i = 0; i < map.length; i++) {
     for (let j = 0; j < map[i].length; j++) {
-      const key = toKey(i, j);
-
-      if (pipeLookup.has(key)) {
+      if (pipeLookup.has(toKey(i, j))) {
         continue;
       }
 
-      const windingNumber = pipe
-        .map((tile) => getQuadrant(fromKey(tile), fromKey(key)))
-        .filter((x) => x !== null)
-        .reduce(
-          ({ accumulator, windingNumber }, currentValue, n, quadrants) => {
-            const nextValue =
-              quadrants[(n + quadrants.length - 1) % quadrants.length]!;
+      let found = false;
 
-            // NOTE - Positive winding.
-
-            if (currentValue === (nextValue + 1) % 4) {
-              accumulator++;
-
-              if (accumulator === 4) {
-                accumulator = 0;
-                windingNumber++;
-              }
-            }
-
-            // NOTE - Negative winding.
-
-            if (currentValue === (nextValue + 3) % 4) {
-              accumulator--;
-
-              if (accumulator === -4) {
-                accumulator = 0;
-                windingNumber--;
-              }
-            }
-
-            return {
-              accumulator,
-              windingNumber,
-            };
-          },
-          {
-            accumulator: 0,
-            windingNumber: 0,
-          }
-        ).windingNumber;
-
-      if (windingNumber !== 0) {
-        count++;
+      for (const connectedComponent of connectedComponents) {
+        if (connectedComponent.has(toKey(i, j))) {
+          found = true;
+          break;
+        }
       }
+
+      if (!found) {
+        const connectedComponent = new Set<string>();
+
+        const keys = [toKey(i, j)];
+
+        while (keys.length > 0) {
+          const key = keys.shift()!;
+
+          if (connectedComponent.has(key)) {
+            continue;
+          } else {
+            connectedComponent.add(key);
+
+            const [m, n] = fromKey(key);
+
+            const neighbors = [
+              [m - 1, n],
+              [m, n - 1],
+              [m, n + 1],
+              [m + 1, n],
+            ]
+              .filter(
+                ([m, n]) =>
+                  m >= 0 &&
+                  m < map.length &&
+                  n >= 0 &&
+                  n < map[m].length &&
+                  !pipeLookup.has(toKey(m, n))
+              )
+              .map(([m, n]) => toKey(m, n));
+
+            keys.unshift(...neighbors);
+          }
+        }
+
+        connectedComponents.push(connectedComponent);
+      }
+    }
+  }
+
+  // NOTE - Calculate the winding number for a representative of each
+  // connected component. If the winding number is non-zero, then it is
+  // enclosed by the pipe.
+
+  let count = 0;
+
+  for (const connectedComponent of connectedComponents) {
+    const key = connectedComponent.values().next().value;
+
+    const windingNumber = pipe
+      .map((tile) => getQuadrant(fromKey(tile), fromKey(key)))
+      .filter((x) => x !== null)
+      .reduce(
+        ({ accumulator, windingNumber }, currentValue, n, quadrants) => {
+          const nextValue =
+            quadrants[(n + quadrants.length - 1) % quadrants.length]!;
+
+          // NOTE - Positive winding.
+
+          if (currentValue === (nextValue + 1) % 4) {
+            accumulator++;
+
+            if (accumulator === 4) {
+              accumulator = 0;
+              windingNumber++;
+            }
+          }
+
+          // NOTE - Negative winding.
+
+          if (currentValue === (nextValue + 3) % 4) {
+            accumulator--;
+
+            if (accumulator === -4) {
+              accumulator = 0;
+              windingNumber--;
+            }
+          }
+
+          return {
+            accumulator,
+            windingNumber,
+          };
+        },
+        {
+          accumulator: 0,
+          windingNumber: 0,
+        }
+      ).windingNumber;
+
+    if (windingNumber !== 0) {
+      count += connectedComponent.size;
     }
   }
 

@@ -13,7 +13,7 @@ function parseInput() {
   const expansionRows: number[] = [];
   const expansionCols: number[] = [];
 
-  const isColumnGalaxy = new Array(image[0].length).fill(false);
+  const isColGalaxy = new Array(image[0].length).fill(false);
 
   for (let i = 0; i < image.length; i++) {
     let isRowGalaxy = false;
@@ -23,7 +23,7 @@ function parseInput() {
         galaxyLookup.add(toKey(i, j));
 
         isRowGalaxy = true;
-        isColumnGalaxy[j] = true;
+        isColGalaxy[j] = true;
       }
     }
 
@@ -33,7 +33,7 @@ function parseInput() {
   }
 
   for (let j = 0; j < image[0].length; j++) {
-    if (!isColumnGalaxy[j]) {
+    if (!isColGalaxy[j]) {
       expansionCols.push(j);
     }
   }
@@ -47,11 +47,11 @@ function parseInput() {
 }
 
 export function part1() {
-  return getSum(1);
+  return getPairwiseDistanceSum(1);
 }
 
 export function part2() {
-  return getSum(999_999);
+  return getPairwiseDistanceSum(999_999);
 }
 
 function toKey(i: number, j: number) {
@@ -62,7 +62,7 @@ function fromKey(key: string) {
   return key.split("|").map(Number);
 }
 
-function getSum(expansionFactor: number) {
+function getPairwiseDistanceSum(expansionFactor: number) {
   const { galaxyLookup, expansionRows, expansionCols } = parseInput();
 
   const entries = [...galaxyLookup.values()];
@@ -77,7 +77,7 @@ function getSum(expansionFactor: number) {
       const numRows = expansionRows.filter(
         (x) => x > Math.min(x0, x1) && x < Math.max(x0, x1)
       ).length;
-      const numColumns = expansionCols.filter(
+      const numCols = expansionCols.filter(
         (y) => y > Math.min(y0, y1) && y < Math.max(y0, y1)
       ).length;
 
@@ -85,7 +85,7 @@ function getSum(expansionFactor: number) {
         Math.abs(x0 - x1) +
         numRows * expansionFactor +
         Math.abs(y0 - y1) +
-        numColumns * expansionFactor;
+        numCols * expansionFactor;
     }
   }
 

@@ -35,7 +35,17 @@ function getTotalArrangementCount(unfoldingFactor: number) {
 
   return conditionRecords
     .map(({ spring, groups }) => {
-      const placements = simplify(spring, groups);
+      const placements = new Array<Array<number>>();
+
+      for (let i = 0; i < groups.length; i++) {
+        placements.push([]);
+
+        for (let j = 0; j < spring.length; j++) {
+          placements[i].push(j);
+        }
+      }
+
+      simplify(spring, groups, placements);
 
       const arrangementCounts = [new Array(placements[0].length).fill(1)];
 
@@ -61,45 +71,7 @@ function getTotalArrangementCount(unfoldingFactor: number) {
     .sum();
 }
 
-function simplify(spring: string[], groups: number[]) {
-  const placements = new Array<Array<number>>();
-
-  for (let i = 0; i < groups.length; i++) {
-    placements.push([]);
-
-    for (let j = 0; j < spring.length; j++) {
-      placements[i].push(j);
-    }
-  }
-
-  simplifyHelper(spring, groups, placements);
-
-  for (let n = 0; n < groups.length; n++) {
-    if (placements[n].length === 1) {
-      const index = placements[n][0];
-
-      if (index > 0) {
-        spring[index - 1] = ".";
-      }
-
-      for (let i = 0; i < groups[n]; i++) {
-        spring[index + i] = "#";
-      }
-
-      if (index + groups[n] < spring.length - 1) {
-        spring[index + groups[n]] = ".";
-      }
-    }
-  }
-
-  return placements;
-}
-
-function simplifyHelper(
-  spring: string[],
-  groups: number[],
-  placements: number[][]
-) {
+function simplify(spring: string[], groups: number[], placements: number[][]) {
   for (let n = 0; n < groups.length; n++) {
     const validPlacements: number[] = [];
 

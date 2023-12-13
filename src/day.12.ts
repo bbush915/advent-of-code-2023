@@ -5,7 +5,7 @@ import { clone } from "./utils/common";
 
 function parseInput(unfoldingFactor: number) {
   return fs
-    .readFileSync("src/day.12.example.1.txt")
+    .readFileSync("src/day.12.input.txt")
     .toString()
     .split("\n")
     .filter((x) => x)
@@ -34,35 +34,40 @@ export function part2() {
 function getTotalArrangementCount(unfoldingFactor: number) {
   const conditionRecords = parseInput(unfoldingFactor);
 
-  return conditionRecords
-    .map(({ spring, groups }, i) => {
-      const placements = simplify(spring, groups);
+  return (
+    conditionRecords
+      //.slice(21, 22)
+      .map(({ spring, groups }, n) => {
+        // const comp = getArrangementCountBFS(
+        //   spring,
+        //   groups,
+        //   simplify(spring, groups)
+        // );
 
-      let arrangementCount = 1;
+        const placements = simplify(spring, groups);
+        const arrangementCounts = [new Array(placements[0].length).fill(1)];
 
-      for (let j = 0; j < placements.length; j++) {
-        const x = placements[j];
-        const y = placements[j + 1];
+        for (let i = 1; i < placements.length; i++) {
+          arrangementCounts.push(new Array(placements[i].length).fill(0));
 
-        if (y && x[x.length - 1] >= y[0]) {
-          let sum = 0;
-
-          for (let k = 0; k < x.length; k++) {
-            sum += y.filter((a) => a > x[k] + groups[j]).length;
+          for (let j = 0; j < placements[i].length; j++) {
+            for (let k = 0; k < placements[i - 1].length; k++) {
+              if (
+                placements[i][j] > placements[i - 1][k] + groups[i - 1] &&
+                !spring
+                  .slice(placements[i - 1][k] + groups[i - 1], placements[i][j])
+                  .includes("#")
+              ) {
+                arrangementCounts[i][j] += arrangementCounts[i - 1][k];
+              }
+            }
           }
-
-          arrangementCount *= sum;
-          j++;
-        } else {
-          arrangementCount *= placements[j].length;
         }
-      }
 
-      console.log(i, arrangementCount);
-
-      return arrangementCount;
-    })
-    .sum();
+        return arrangementCounts[arrangementCounts.length - 1].sum();
+      })
+      .sum()
+  );
 }
 
 function simplify(spring: string[], groups: number[]) {
@@ -143,6 +148,15 @@ function simplifyHelper(
         continue;
       }
 
+      // NOTE - Can't create extra group at end of the spring.
+
+      if (
+        n === groups.length - 1 &&
+        spring.slice(index + groups[n]).includes("#")
+      ) {
+        continue;
+      }
+
       // NOTE - Can't place a piece off the edge of the spring.
 
       if (index + groups[n] > spring.length) {
@@ -166,7 +180,7 @@ function simplifyHelper(
       // NOTE - Must not have a trailing damaged piece.
 
       if (
-        index + groups[n] < spring.length - 1 &&
+        index + groups[n] < spring.length &&
         spring[index + groups[n]] === "#"
       ) {
         continue;
@@ -196,27 +210,25 @@ function simplifyHelper(
           threshold = placements[m].filter((x) => x > threshold)[0];
         }
 
-        // NOTE - Must allow valid arrangement.
+        // NOTE - Can't have damaged pieces between groups.
 
-        const arrangement = clone(spring);
-
-        for (let j = 0; j < groups.length; j++) {
-          for (let k = 0; k < groups[j]; j++) {
-            arrangement[placements[j][0] + k] = "#";
-          }
+        if (
+          n > 0 &&
+          spring
+            .slice(
+              placements[n - 1][placements[n - 1].length - 1] + groups[n - 1],
+              index
+            )
+            .includes("#")
+        ) {
+          continue;
         }
 
-        const arrangementGroups = arrangement
-          .join("")
-          .replace(/\?/g, ".")
-          .split(/\.+/)
-          .filter((x) => x)
-          .map((x) => x.length);
-
-        for (let i = 0; i < arrangementGroups.length; i++) {
-          if (arrangementGroups[i] !== groups[i]) {
-            continue placementLoop;
-          }
+        if (
+          n < groups.length - 1 &&
+          spring.slice(index + groups[n], placements[n + 1][0]).includes("#")
+        ) {
+          continue;
         }
       }
 
@@ -262,7 +274,7 @@ function getArrangementCountDFS(
     const submapping = clone(mapping);
     submapping[groupIndex] = i;
 
-    if (isPossibleMapping(spring, groups, placements, groupIndex, submapping)) {
+    if (isPossibleMapping(spring, groups, submapping)) {
       arrangementCount += getArrangementCountDFS(
         spring,
         groups,
@@ -307,7 +319,7 @@ function getArrangementCountBFS(
     mappings = workingMappings;
   }
 
-  return mappings.length;
+  return mappings;
 }
 
 function getPossibleMappings(
@@ -327,16 +339,12 @@ function getPossibleMappings(
 
       return submapping;
     })
-    .filter((submapping) =>
-      isPossibleMapping(spring, groups, placements, groupIndex, submapping)
-    );
+    .filter((submapping) => isPossibleMapping(spring, groups, submapping));
 }
 
 function isPossibleMapping(
   spring: string[],
   groups: number[],
-  placements: number[][],
-  groupIndex: number,
   mapping: number[]
 ) {
   // NOTE - Populate proposed spring from mapping.
@@ -392,6 +400,64 @@ function isPossibleMapping(
       }
     }
 
+    if (proposedGroups[i] !== groups[i]) {
+      return false;
+    }
+  }
+
+  return true;
+}
+
+function isValidMapping(spring: string[], groups: number[], mapping: number[]) {
+  // NOTE - Populate proposed spring from mapping.
+
+  const proposedSpring = clone(spring);
+
+  let maxIndex = 0;
+  let partialPlacements = false;
+
+  for (let i = 0; i < groups.length; i++) {
+    const startIndex = mapping[i];
+
+    if (startIndex === undefined) {
+      partialPlacements = true;
+      break;
+    }
+
+    for (let j = 0; j < groups[i]; j++) {
+      const index = startIndex + j;
+
+      proposedSpring[index] = "#";
+      maxIndex = index + 1;
+    }
+  }
+
+  if (partialPlacements) {
+    while (
+      maxIndex < proposedSpring.length &&
+      proposedSpring[maxIndex] !== "?"
+    ) {
+      maxIndex++;
+    }
+  } else {
+    maxIndex = proposedSpring.length;
+  }
+
+  // NOTE - Validate proposed groups.
+
+  const proposedGroups = proposedSpring
+    .slice(0, maxIndex)
+    .join("")
+    .replace(/\?/g, ".")
+    .split(/\.+/)
+    .filter((x) => x)
+    .map((x) => x.length);
+
+  if (proposedGroups.length !== mapping.filter((x) => x !== null).length) {
+    return false;
+  }
+
+  for (let i = 0; i < proposedGroups.length; i++) {
     if (proposedGroups[i] !== groups[i]) {
       return false;
     }

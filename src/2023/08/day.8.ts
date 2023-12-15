@@ -1,6 +1,6 @@
 import fs from "fs";
 
-import { gcd } from "./utils/number";
+import { gcd } from "../../utils/number";
 
 type Node = {
   label: string;

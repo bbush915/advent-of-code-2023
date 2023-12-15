@@ -1,6 +1,6 @@
 import fs from "fs";
 
-import { search } from "./utils/graph";
+import { search } from "../../utils/graph";
 
 function parseInput() {
   const map = fs

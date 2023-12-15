@@ -1,7 +1,7 @@
 import fs from "fs";
 
-import "./utils/array";
-import { isNumeric } from "./utils/number";
+import "../../utils/array";
+import { isNumeric } from "../../utils/number";
 
 const DIGIT_MAP = {
   one: 1,

@@ -1,6 +1,6 @@
 import fs from "fs";
 
-import "./utils/array";
+import "../../utils/array";
 
 type Hand = {
   cards: string[];

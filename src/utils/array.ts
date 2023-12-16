@@ -47,6 +47,17 @@ export function isArray(value: any): boolean {
 }
 
 /**
+ * Generates a range of value from [start, end).
+ *
+ * @param start The first value of the range.
+ * @param finish The last value of the range (not inclusive).
+ * @returns  The range of values.
+ */
+export function range(start: number, finish: number): number[] {
+  return Array.from({ length: finish - start }, (_, i) => i + start);
+}
+
+/**
  * Returns the cartesian product of the given arrays.
  *
  * @template T

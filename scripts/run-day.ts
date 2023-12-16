@@ -1,6 +1,8 @@
 import commandLineArgs from "command-line-args";
 import dotenv from "dotenv";
 
+import "../src/utils/array";
+
 dotenv.config();
 
 const options = commandLineArgs([

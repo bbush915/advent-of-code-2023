@@ -15,11 +15,11 @@ export function search(
   getDistance: DistanceFunction = DefaultGetDistance,
   getHeuristic: HeuristicFunction = DefaultGetHeuristic
 ) {
-  const distanceLookup = new Map();
+  const distanceLookup = new Map<string, number>();
   distanceLookup.set(source, 0);
 
-  const predecessorLookup = new Map();
-  predecessorLookup.set(source, undefined);
+  const predecessorLookup = new Map<string, string | null>();
+  predecessorLookup.set(source, null);
 
   const priorityQueue = new MinPriorityQueue();
   priorityQueue.insert(source, getHeuristic(source));
@@ -32,7 +32,7 @@ export function search(
     }
 
     for (const neighborKey of getNeighbors(key)) {
-      const distance = distanceLookup.get(key) + getDistance(key, neighborKey);
+      const distance = distanceLookup.get(key)! + getDistance(key, neighborKey);
 
       if (
         distance < (distanceLookup.get(neighborKey) ?? Number.POSITIVE_INFINITY)

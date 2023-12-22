@@ -129,7 +129,7 @@ export function inv(a: number, m: number): number | null {
  */
 export function lpr(a: number, m: number): number {
   if (a < 0) {
-    return m - (-a % m);
+    return (m - (-a % m)) % m;
   }
 
   return a % m;
